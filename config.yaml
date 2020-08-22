@@ -1,0 +1,13 @@
+# URL:     https://raw.githubusercontent.com/DesperadoJ/Rules-for-UnblockNeteaseMusic/master/Clash/Proxy/NeteaseMusic.yaml
+
+
+proxies:
+  - name: 🎶 网易云解锁-电信
+    type: http
+    server: sjy.losfa.xyz
+    port: 9527
+
+  - name: 🎶 网易云解锁-移动1Gbps
+    type: http
+    server: www.losfa.xyz
+    port: 34567
