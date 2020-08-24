@@ -7,6 +7,19 @@ log-level: info
 # When set to false, resolver won't translate hostnames to IPv6 addresses
 ipv6: true
 
+# Static hosts for DNS server and connection establishment, only works
+# when `dns.enhanced-mode` is `redir-host`.
+#
+# Wildcard hostnames are supported (e.g. *.clash.dev, *.foo.*.example.com)
+# Non-wildcard domain names has a higher priority than wildcard domain names
+# e.g. foo.example.com > *.example.com > .example.com
+# P.S. +.foo.com equals to .foo.com and foo.com
+hosts:
+  'mtalk.google.com': 108.177.125.188
+  # '*.clash.dev': 127.0.0.1
+  # '.dev': 127.0.0.1
+  # 'alpha.clash.dev': '::1'
+  
 # DNS server settings
 # This section is optional. When not present, the DNS server will be disabled.
 dns:
@@ -34,19 +47,15 @@ dns:
   # All DNS questions are sent directly to the nameserver, without proxies
   # involved. Clash answers the DNS question with the first result gathered.
   nameserver:
-    - 114.114.114.114 # default value
-    - 8.8.8.8 # default value
+    - 114.114.114.114
+    - 8.8.8.8
+    - 223.5.5.5
+    - 1.1.1.1
     - tls://dns.rubyfish.cn:853 # DNS over TLS
     - https://1.1.1.1/dns-query # DNS over HTTPS
 
 proxies:
-  # Shadowsocks
-  # The supported ciphers (encryption methods):
-  #   aes-128-gcm aes-192-gcm aes-256-gcm
-  #   aes-128-cfb aes-192-cfb aes-256-cfb
-  #   aes-128-ctr aes-192-ctr aes-256-ctr
-  #   rc4-md5 chacha20-ietf xchacha20
-  #   chacha20-ietf-poly1305 xchacha20-ietf-poly1305
+  #VMess 1
   - name: "VMess-GIA"
     type: vmess
     server: losfa.xyz
@@ -58,6 +67,32 @@ proxies:
     tls: true
     network: ws
     ws-path: /95ae5cf52d/
+    
+  #VMess 2
+  - name: "Geph-电信"
+    type: vmess
+    server: sjy.losfa.xyz
+    port: 443
+    uuid: f7da739f-a465-4530-b103-7b553a74ece9
+    alterId: 32
+    cipher: auto
+    skip-cert-verify: true
+    tls: true
+    network: ws
+    ws-path: /8ca5b/
+    
+  #VMess 3
+  - name: "Geph-移动"
+    type: vmess
+    server: www.losfa.xyz
+    port: 1443
+    uuid: eb22410e-7d9d-4135-b12e-ec1e43d48cd7
+    alterId: 128
+    cipher: auto
+    skip-cert-verify: true
+    tls: true
+    network: ws
+    ws-path: /3265c21/
 
   # http
   - name: "🎶网易云解锁-移动"
@@ -72,21 +107,105 @@ proxies:
 proxy-groups:
   # select is used for selecting proxy or proxy group
   # you can use RESTful API to switch proxy is recommended for use in GUI.
-  - name: Proxy
+  - name: PROXY
     type: select
     proxies:
       - VMess-GIA
+      - Geph-电信
+      - Geph-移动
+      
   - name: 网易云音乐
     type: select
     proxies:
       - 🎶网易云解锁-移动
 
+# 关于 Rule Provider 请查阅：https://lancellc.gitbook.io/clash/clash-config-file/rule-provider
 
+rule-providers:
+# name: # Provider 名称
+#   type: http # http 或 file
+#   behavior: classical # 或 ipcidr、domain
+#   path: # 文件路径
+#   url: # 只有当类型为 HTTP 时才可用，您不需要在本地空间中创建新文件。
+#   interval: # 自动更新间隔，仅在类型为 HTTP 时可用
+
+  Unbreak:
+    type: http
+    behavior: classical
+    path: ./RuleSet/Unbreak.yaml
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/Unbreak.yaml
+    interval: 86400
+
+  Streaming:
+    type: http
+    behavior: classical
+    path: ./RuleSet/StreamingMedia/Streaming.yaml
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/Streaming.yaml
+    interval: 86400
+
+  StreamingSE:
+    type: http
+    behavior: classical
+    path: ./RuleSet/StreamingMedia/StreamingSE.yaml
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/StreamingSE.yaml
+    interval: 86400
+
+  Global:
+    type: http
+    behavior: classical
+    path: ./RuleSet/Global.yaml
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/Global.yaml
+    interval: 86400
+
+  China:
+    type: http
+    behavior: classical
+    path: ./RuleSet/China.yaml
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/China.yaml
+    interval: 86400
+
+  ChinaIP:
+    type: http
+    behavior: ipcidr
+    path: ./RuleSet/Extra/ChinaIP.yaml
+    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/Extra/ChinaIP.yaml
+    interval: 86400
+
+# 规则
 rules:
-  - DOMAIN-SUFFIX,google.com,Proxy
-  - DOMAIN-KEYWORD,google,Proxy
-  - DOMAIN,google.com,Proxy
-  - DOMAIN-SUFFIX,ad.com,REJECT
+  # Unbreak
+  - RULE-SET,Unbreak,DIRECT
+
+  # Global Area Network
+
+  # (Streaming Media)
+  - RULE-SET,Streaming,Streaming
+
+  # (StreamingSE)
+  - RULE-SET,StreamingSE,StreamingSE
+
+  # (DNS Cache Pollution) / (IP Blackhole) / (Region-Restricted Access Denied) / (Network Jitter)
+  - RULE-SET,Global,PROXY
+
+  # China Area Network
+  - RULE-SET,China,DIRECT
+
+  # Local Area Network
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,100.64.0.0/10,DIRECT
+  - IP-CIDR,224.0.0.0/4,DIRECT
+
+  # （可选）使用来自 ipipdotnet 的 ChinaIP 以解决数据不准确的问题，使用 ChinaIP.yaml 时可禁用下列直至（包括）「GEOIP,CN」规则
+  # - RULE-SET,ChinaIP,DIRECT
+  # Tencent
+  - IP-CIDR,119.28.28.28/32,DIRECT
+  - IP-CIDR,182.254.116.0/24,DIRECT
+  
+  # 以下为网易云规则
+
   - DOMAIN-SUFFIX,interface.music.163.com,网易云音乐
   - DOMAIN-SUFFIX,interface1.music.163.com,网易云音乐
   - DOMAIN-SUFFIX,interface2.music.163.com,网易云音乐
@@ -121,8 +240,8 @@ rules:
   - IP-CIDR,115.236.112.0/20,网易云音乐
   - IP-CIDR,223.252.192.0/19,网易云音乐
   - IP-CIDR,101.71.154.241/32,网易云音乐
-  
-  # optional param "no-resolve" for IP rules (GEOIP, IP-CIDR, IP-CIDR6)
-  - GEOIP,CN,DIRECT
-  - MATCH,Proxy
 
+
+  # GeoIP China
+  - GEOIP,CN,DIRECT
+  - MATCH,MATCH
