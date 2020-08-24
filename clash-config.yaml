@@ -54,15 +54,10 @@ proxies:
     uuid: f7da739f-a465-4530-b103-7b553a74ece9
     alterId: 128
     cipher: none
-    # udp: true
-    network: http
-      http-opts:
-        method: "GET"
-          path:
-            - '/8ca5b/'
-    #   # headers:
-    #   #   Connection:
-    #   #     - keep-alive
+    udp: false
+    skip-cert-verify: true
+    network: ws
+    ws-path: /8ca5b/
 
   # http
   - name: "🎶网易云解锁-移动"
