@@ -136,19 +136,6 @@ rule-providers:
     url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/Unbreak.yaml
     interval: 86400
 
-  Streaming:
-    type: http
-    behavior: classical
-    path: ./RuleSet/StreamingMedia/Streaming.yaml
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/Streaming.yaml
-    interval: 86400
-
-  StreamingSE:
-    type: http
-    behavior: classical
-    path: ./RuleSet/StreamingMedia/StreamingSE.yaml
-    url: https://raw.githubusercontent.com/DivineEngine/Profiles/master/Clash/RuleSet/StreamingMedia/StreamingSE.yaml
-    interval: 86400
 
   Global:
     type: http
@@ -177,12 +164,6 @@ rules:
   - RULE-SET,Unbreak,DIRECT
 
   # Global Area Network
-
-  # (Streaming Media)
-  - RULE-SET,Streaming,Streaming
-
-  # (StreamingSE)
-  - RULE-SET,StreamingSE,StreamingSE
 
   # (DNS Cache Pollution) / (IP Blackhole) / (Region-Restricted Access Denied) / (Network Jitter)
   - RULE-SET,Global,PROXY
@@ -244,4 +225,4 @@ rules:
 
   # GeoIP China
   - GEOIP,CN,DIRECT
-  - MATCH,MATCH
+  - MATCH,PROXY
