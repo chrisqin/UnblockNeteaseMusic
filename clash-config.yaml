@@ -107,7 +107,7 @@ proxies:
   # socks5
   - name: "Test-soc"
     type: socks5
-    server: localhost
+    server: ::1
     port: 3131
 
 proxy-groups:
