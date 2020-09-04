@@ -103,6 +103,12 @@ proxies:
     # password: password
     # tls: true # https
     # skip-cert-verify: true
+    
+  # socks5
+  - name: "Test-soc"
+    type: socks5
+    server: localhost
+    port: 3131
 
 proxy-groups:
   # select is used for selecting proxy or proxy group
@@ -113,6 +119,7 @@ proxy-groups:
       - VMess-GIA
       - Geph-电信
       - Geph-移动
+      - Test-soc
       
   - name: 网易云音乐
     type: select
